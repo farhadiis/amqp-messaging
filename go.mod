@@ -1,4 +1,4 @@
-module farhadiis/amqp-messaging
+module github.com/farhadiis/amqp-messaging
 
 go 1.19
 
