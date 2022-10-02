@@ -22,7 +22,7 @@ const (
 )
 
 // WorkerHandler defines the worker function with Data message param.
-type WorkerHandler func(message Message) (*interface{}, Acknowledge)
+type WorkerHandler func(message Message) (interface{}, Acknowledge)
 
 // SubscribeHandler defines the subscribe function.
 type SubscribeHandler func(message Message)

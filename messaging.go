@@ -11,11 +11,11 @@ import (
 type Messaging interface {
 	AddWorker(queue string, handler WorkerHandler) error
 	AddWorkerWithOptions(queue string, handler WorkerHandler, options *WorkerOptions) error
-	SendPush(queue string, data *interface{}) error
-	SendPushWithOptions(queue string, data *interface{}, options *PushOptions) error
-	RpcCall(queue string, data *interface{}) (error, interface{})
-	Publish(queue string, data *interface{}) error
-	PublishWithOptions(queue string, data *interface{}, options *PublishOptions) error
+	SendPush(queue string, data interface{}) error
+	SendPushWithOptions(queue string, data interface{}, options *PushOptions) error
+	RpcCall(queue string, data interface{}) (error, interface{})
+	Publish(queue string, data interface{}) error
+	PublishWithOptions(queue string, data interface{}, options *PublishOptions) error
 	Subscribe(queue string, handler SubscribeHandler) error
 	SubscribeWithOptions(queue string, handler SubscribeHandler, options *SubscribeOptions) error
 	CancelWorkers() error
@@ -56,12 +56,12 @@ func (m *messaging) AddWorkerWithOptions(queue string, handler WorkerHandler, op
 }
 
 // SendPush push a message to worker.
-func (m *messaging) SendPush(queue string, data *interface{}) error {
+func (m *messaging) SendPush(queue string, data interface{}) error {
 	return m.SendPushWithOptions(queue, data, defaultPushOptions)
 }
 
 // SendPushWithOptions push a message to worker with custom options.
-func (m *messaging) SendPushWithOptions(queue string, data *interface{}, options *PushOptions) error {
+func (m *messaging) SendPushWithOptions(queue string, data interface{}, options *PushOptions) error {
 	var deliveryMode = amqp.Transient
 	if options.Persistent {
 		deliveryMode = amqp.Persistent
@@ -75,7 +75,7 @@ func (m *messaging) SendPushWithOptions(queue string, data *interface{}, options
 }
 
 // RpcCall push a message to worker and wait it result.
-func (m *messaging) RpcCall(queue string, data *interface{}) (error, interface{}) {
+func (m *messaging) RpcCall(queue string, data interface{}) (error, interface{}) {
 	corrId := uuid.NewString()
 	resultChan := make(chan interface{})
 	m.replies[corrId] = resultChan
@@ -127,12 +127,12 @@ func (m *messaging) RpcCall(queue string, data *interface{}) (error, interface{}
 }
 
 // Publish push a message to all subscribers in queue.
-func (m *messaging) Publish(queue string, data *interface{}) error {
+func (m *messaging) Publish(queue string, data interface{}) error {
 	return m.PublishWithOptions(queue, data, defaultPublishOptions)
 }
 
 // PublishWithOptions push a message to all subscribers in queue with custom options.
-func (m *messaging) PublishWithOptions(queue string, data *interface{}, options *PublishOptions) error {
+func (m *messaging) PublishWithOptions(queue string, data interface{}, options *PublishOptions) error {
 	err := m.chManager.getChannel().ExchangeDeclare(
 		queue,
 		"fanout",
@@ -328,7 +328,7 @@ func (m *messaging) handleSubscriber(queue string, handler SubscribeHandler, opt
 	return nil
 }
 
-func (m *messaging) safePublish(key string, exchange string, data *interface{}, replyTo string, deliveryMode uint8,
+func (m *messaging) safePublish(key string, exchange string, data interface{}, replyTo string, deliveryMode uint8,
 	correlationId string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

@@ -18,7 +18,7 @@ messaging := rabbitmq.NewMessaging("RABBITMQ-ADDRESS");
 ## Work Queues
 When you want to push to a queue and go ahead, You're not waiting for any responses. you can see this example:
 ```go
-err := messaging.AddWorker("mySampleQueue", func(message rabbitmq.Message) (*interface{}, rabbitmq.Acknowledge) {
+err := messaging.AddWorker("mySampleQueue", func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
 	log.Printf("Received a message: %s\n", message.Body)
 	return nil, rabbitmq.None
 })
@@ -51,7 +51,7 @@ if err != nil {
 ```
 ## RPC
 ```go
-err := messaging.AddWorker("findUser", func(message rabbitmq.Message) (*interface{}, rabbitmq.Acknowledge) {
+err := messaging.AddWorker("findUser", func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
 	var result interface{} = "Farhad"
 	return &result, rabbitmq.None
 })

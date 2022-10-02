@@ -18,7 +18,7 @@ func TestMessaging_AddWorker_SendPush(t *testing.T) {
 	c := make(chan interface{})
 	err = messaging.AddWorker(
 		"bar",
-		func(message Message) (*interface{}, Acknowledge) {
+		func(message Message) (interface{}, Acknowledge) {
 			c <- message.Body
 			return nil, None
 		},
@@ -45,7 +45,7 @@ func TestMessaging_AddWorker_RpcCall(t *testing.T) {
 	messaging.RegisterType(User{})
 	err = messaging.AddWorker(
 		"foo",
-		func(message Message) (*interface{}, Acknowledge) {
+		func(message Message) (interface{}, Acknowledge) {
 			var id = message.Body.(string)
 			var result interface{} = User{id, "Farhad"}
 			return &result, None
