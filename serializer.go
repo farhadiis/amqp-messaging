@@ -5,6 +5,10 @@ import (
 	"encoding/gob"
 )
 
+func registerType(value interface{}) {
+	gob.Register(value)
+}
+
 func encode(data interface{}) ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
 	enc := gob.NewEncoder(buf)

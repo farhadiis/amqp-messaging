@@ -19,6 +19,8 @@ type Messaging interface {
 	Subscribe(queue string, handler SubscribeHandler) error
 	SubscribeWithOptions(queue string, handler SubscribeHandler, options *SubscribeOptions) error
 	CancelWorkers() error
+
+	RegisterType(value interface{})
 }
 
 type messaging struct {
@@ -188,6 +190,10 @@ func (m *messaging) CancelWorkers() error {
 		delete(m.replies, k)
 	}
 	return m.chManager.close()
+}
+
+func (m *messaging) RegisterType(value interface{}) {
+	registerType(value)
 }
 
 func (m *messaging) handleWorker(queue string, handler WorkerHandler, options *WorkerOptions) error {

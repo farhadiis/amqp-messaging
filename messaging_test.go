@@ -4,6 +4,11 @@ import "testing"
 
 const url = "amqp://guest:guest@localhost:5672/"
 
+type User struct {
+	Id   string
+	Name string
+}
+
 // TestMessaging_AddWorker_SendPush define a worker and checking send push message in worker.
 func TestMessaging_AddWorker_SendPush(t *testing.T) {
 	var messaging, err = NewMessaging(url)
@@ -37,23 +42,25 @@ func TestMessaging_AddWorker_RpcCall(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	messaging.RegisterType(User{})
 	err = messaging.AddWorker(
 		"foo",
 		func(message Message) (*interface{}, Acknowledge) {
-			var msg = message.Body.(string)
-			var result interface{} = msg + "baz"
+			var id = message.Body.(string)
+			var result interface{} = User{id, "Farhad"}
 			return &result, None
 		},
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	var data interface{} = "bar"
-	err, result := messaging.RpcCall("foo", &data)
+	var id interface{} = "12"
+	err, result := messaging.RpcCall("foo", &id)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result != data.(string)+"baz" {
+	user := result.(User)
+	if user.Id != id.(string) || user.Name != "Farhad" {
 		t.Fatalf(`The return value of the worker must be equal to the value sent in RpcCall`)
 	}
 }
