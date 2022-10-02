@@ -106,13 +106,7 @@ func (m *messaging) RpcCall(queue string, data *interface{}) (error, interface{}
 		go func() {
 			for msg := range message {
 				if channel, ok := m.replies[msg.CorrelationId]; ok {
-					var decoded interface{} = nil
-					if msg.Body != nil {
-						err := decode(msg.Body, &decoded)
-						if err != nil {
-							m.logger.Error("message decode error: %v", err)
-						}
-					}
+					decoded := m.decodeMessage(msg)
 					channel <- decoded
 				}
 			}
@@ -239,13 +233,7 @@ func (m *messaging) handleWorker(queue string, handler WorkerHandler, options *W
 
 func (m *messaging) handleWorkerMessage(message <-chan amqp.Delivery, handler WorkerHandler, options *WorkerOptions) {
 	for msg := range message {
-		var decoded interface{} = nil
-		if msg.Body != nil {
-			err := decode(msg.Body, &decoded)
-			if err != nil {
-				m.logger.Error("message decode error: %v", err)
-			}
-		}
+		decoded := m.decodeMessage(msg)
 		resultHandler, ackHandler := handler(Message{decoded})
 		if msg.ReplyTo != "" {
 			err := m.safePublish(msg.ReplyTo, "", resultHandler, "", amqp.Transient, msg.CorrelationId)
@@ -326,13 +314,7 @@ func (m *messaging) handleSubscriber(queue string, handler SubscribeHandler, opt
 	for a := 0; a < options.Concurrency; a++ {
 		go func() {
 			for msg := range message {
-				var decoded interface{} = nil
-				if msg.Body != nil {
-					err := decode(msg.Body, &decoded)
-					if err != nil {
-						m.logger.Error("message decode error: %v", err)
-					}
-				}
+				decoded := m.decodeMessage(msg)
 				handler(Message{decoded})
 			}
 		}()
@@ -377,6 +359,17 @@ func (m *messaging) safePublish(key string, exchange string, data *interface{}, 
 			Body:          body,
 		},
 	)
+}
+
+func (m *messaging) decodeMessage(msg amqp.Delivery) interface{} {
+	var decoded interface{} = nil
+	if msg.Body != nil {
+		err := decode(msg.Body, &decoded)
+		if err != nil {
+			m.logger.Error("message decode error: %v", err)
+		}
+	}
+	return decoded
 }
 
 func (m *messaging) registerWorkersOnRestart() {
