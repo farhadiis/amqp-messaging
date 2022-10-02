@@ -4,9 +4,15 @@ import "testing"
 
 const url = "amqp://guest:guest@localhost:5672/"
 
+type Address struct {
+	City    string
+	ZipCode uint
+}
+
 type User struct {
-	Id   string
-	Name string
+	Id      string
+	Name    string
+	Address Address
 }
 
 // TestMessaging_AddWorker_SendPush define a worker and checking send push message in worker.
@@ -47,7 +53,7 @@ func TestMessaging_AddWorker_RpcCall(t *testing.T) {
 		"foo",
 		func(message Message) (interface{}, Acknowledge) {
 			var id = message.Body.(string)
-			var result interface{} = User{id, "Farhad"}
+			var result interface{} = User{id, "Farhad", Address{"San Francisco", 5451}}
 			return &result, None
 		},
 	)
