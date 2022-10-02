@@ -53,14 +53,9 @@ if err != nil {
 ```
 ## RPC
 ```go
-type Address struct {
-    City    string
-    ZipCode uint
-}
 type User struct {
-    Id      string
-    Name    string
-    Address Address
+	Id   string
+	Name string
 }
 	
 messaging.RegisterType(User{})
@@ -68,7 +63,7 @@ messaging.RegisterType(User{})
 err := messaging.AddWorker("findUser",
     func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
         var id = message.Body.(string)
-        var result interface{} = User{id, "Farhad", Address{"San Francisco", 26591}}
+        var result interface{} = User{id, "Farhad"}
         return &result, rabbitmq.None
     },
 )
