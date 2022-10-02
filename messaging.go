@@ -2,7 +2,6 @@ package rabbitmq
 
 import (
 	"context"
-	"errors"
 	"github.com/google/uuid"
 	"time"
 
@@ -61,9 +60,6 @@ func (m *messaging) SendPush(queue string, data *interface{}) error {
 
 // SendPushWithOptions push a message to worker with custom options.
 func (m *messaging) SendPushWithOptions(queue string, data *interface{}, options *PushOptions) error {
-	if data == nil {
-		return errors.New("nil message body ignored")
-	}
 	var deliveryMode = amqp.Transient
 	if options.Persistent {
 		deliveryMode = amqp.Persistent
@@ -234,7 +230,7 @@ func (m *messaging) handleWorker(queue string, handler WorkerHandler, options *W
 	if err != nil {
 		return err
 	}
-	m.logger.Debug("worker for queue '%s' added, waiting for incoming message on %v goroutines.", queue, options.Concurrency)
+	m.logger.Info("worker for queue '%s' added, waiting for incoming message on %v goroutines.", queue, options.Concurrency)
 	for a := 0; a < options.Concurrency; a++ {
 		go m.handleWorkerMessage(message, handler, options)
 	}
@@ -326,7 +322,7 @@ func (m *messaging) handleSubscriber(queue string, handler SubscribeHandler, opt
 	if err != nil {
 		return err
 	}
-	m.logger.Debug("subscribe for queue '%s' added, waiting for incoming message on %v goroutines.", queue, options.Concurrency)
+	m.logger.Info("subscribe for queue '%s' added, waiting for incoming message on %v goroutines.", queue, options.Concurrency)
 	for a := 0; a < options.Concurrency; a++ {
 		go func() {
 			for msg := range message {

@@ -1,9 +1,9 @@
 # AMQP-Messaging
-Highly efficient library to communicate with other microservices using RabbitMQ(AMQP Protocol) in Go
+Highly efficient library to communicate with other microservices using RabbitMQ(AMQP Protocol) in Go.
 
 ### Installing
 Install via go get:
-```
+```shell
 $ go get github.com/farhadiis/amqp-messaging
 ```
 
