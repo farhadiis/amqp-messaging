@@ -18,10 +18,12 @@ messaging := rabbitmq.NewMessaging("RABBITMQ-ADDRESS");
 ## Work Queues
 When you want to push to a queue and go ahead, You're not waiting for any responses. you can see this example:
 ```go
-err := messaging.AddWorker("mySampleQueue", func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
-	log.Printf("Received a message: %s\n", message.Body)
-	return nil, rabbitmq.None
-})
+err := messaging.AddWorker("mySampleQueue", 
+        func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
+        log.Printf("Received a message: %s\n", message.Body)
+        return nil, rabbitmq.None
+    },
+)
 if err != nil {
 	log.Fatal(err)
 }
@@ -51,20 +53,36 @@ if err != nil {
 ```
 ## RPC
 ```go
-err := messaging.AddWorker("findUser", func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
-	var result interface{} = "Farhad"
-	return &result, rabbitmq.None
-})
+type Address struct {
+    City    string
+    ZipCode uint
+}
+type User struct {
+    Id      string
+    Name    string
+    Address Address
+}
+	
+messaging.RegisterType(User{})
+	
+err := messaging.AddWorker("findUser",
+    func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
+        var id = message.Body.(string)
+        var result interface{} = User{id, "Farhad", Address{"San Francisco", 26591}}
+        return &result, rabbitmq.None
+    },
+)
 if err != nil {
-	log.Fatal(err)
+    log.Fatal(err)
 }
 
-var data interface{} = "12"
-err, result := messaging.RpcCall("findUser", &data)
+var id interface{} = "12"
+err, result := messaging.RpcCall("findUser", &id)
 if err != nil {
 	log.Fatal(err)
 }
-log.Printf("user is %s\n", result)
+user := result.(User)
+log.Printf("user: %v\n", user)
 ```
 
 
