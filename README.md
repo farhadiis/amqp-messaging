@@ -19,7 +19,7 @@ messaging := rabbitmq.NewMessaging("RABBITMQ-ADDRESS");
 When you want to push to a queue and go ahead, You're not waiting for any responses. you can see this example:
 ```go
 err := messaging.AddWorker("mySampleQueue", 
-        func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
+    func(message rabbitmq.Message) (interface{}, rabbitmq.Acknowledge) {
         log.Printf("Received a message: %s\n", message.Body)
         return nil, rabbitmq.None
     },
