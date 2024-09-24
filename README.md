@@ -1,4 +1,4 @@
-# AMQP-Messaging
+# AMQP-Messaging for Go
 Highly efficient library to communicate with other microservices using RabbitMQ(AMQP Protocol) in Go.
 
 ### Installing
